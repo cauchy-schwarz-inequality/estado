@@ -17,6 +17,7 @@ def test_toplevel():
     """
     
     machine = Machine()
+    machine.register(Pass())
     compiled = machine.compile()
     
     assert "States" in compiled
@@ -127,7 +128,29 @@ def test_compile_pass_state():
         end=True
     )
 
-    assert pass_.compile() == pass_expected    
+    assert pass_.compile() == pass_expected
 
+    machine = Machine()
+    machine.register(pass_)
+
+    assert machine.interpret() == result
+
+    compiled_machine_expected = {
+        "StartAt": "No-op",
+        "States": {
+            "No-op": {
+                "Type": "Pass",
+                "Result": {
+                    "x": 0.381018,
+                    "y": 622.2269926397355
+                },
+                "Next": "End",
+                "End": True,
+                "ResultPath": "$.result"
+            }
+        }
+    }
+
+    assert machine.compile() == compiled_machine_expected
     
 
