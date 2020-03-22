@@ -1,5 +1,9 @@
 from estado.machine import Machine
 from estado.pass_state import Pass
+from estado.result  import Result
+from estado.state import State
+
+import pytest
 
 
 def test_toplevel():
@@ -35,7 +39,7 @@ def test_pass_state_empty():
     machine.register(pass_)
     pass_run_result = machine.run()
 
-    assert pass_run_result is None
+    assert pass_run_result == None
 
     
 
@@ -53,16 +57,30 @@ def test_pass_state_nonempty():
     pass_2_run_result = machine_2.run()
 
     assert pass_2_run_result == 5
+
+
+def test_result_equality():
+
+    assert Result(2) == 2
+
+    assert Result(2) == {"result": 2}
+
+    assert Result() == None
+
+
+    result_data = {
+        "a": 1,
+        "b": 2,
+        "c": 3
+    }
+    lhs = Result(result_data)
+    rhs = Result(result_data)
+
+    assert lhs == rhs
+
     
     
 
-    # machine_two = Machine()
-    # pass_two = Pass(2)
-    # machine.register(pass_two)
-    # pass_two_run_result = machine.run()
-
-    # assert pass_two_run_result == 2
-    
     
     
     
