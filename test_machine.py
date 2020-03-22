@@ -3,6 +3,8 @@ from estado.pass_state import Pass
 from estado.result  import Result
 from estado.state import State
 
+from estado.state import InvalidStateTypeException, TerminalStateConflictException
+
 import pytest
 
 
@@ -78,9 +80,23 @@ def test_result_equality():
 
     assert lhs == rhs
 
-    
-    
+def test_invalid_state_type_raises_exception():
+    state_config = {
+        "type": "Some unsupported state type"
+    }
+    with pytest.raises(InvalidStateTypeException):
+        state = State(state_config)
 
-    
-    
+
+def test_conflicting_terminal_state_raises_exception():
+    state_config = {
+        "type": "Pass",
+        "end": True,
+        "next": "A non-null next value"
+    }
+
+    state = State(state_config)
+
+    with pytest.raises(TerminalStateConflictException):
+        state.compile()
     
