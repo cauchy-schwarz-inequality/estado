@@ -20,13 +20,13 @@ class Machine:
         for state in self.states:
 
             compiled['States'] = {
-                **compiled['States'], **self.states[state].compile()
+                **compiled['States'],
+                **self.states[state].compile()
             }
 
         return compiled
 
     def start_at(self):
-        print(self.states)
         return next(iter(self.states))
 
     def validate(self):
