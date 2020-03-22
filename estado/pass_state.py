@@ -1,5 +1,5 @@
 from estado.state import State
-from estado.hash_utils import slug_hash
+
 
 class Pass(State):
 
@@ -8,16 +8,20 @@ class Pass(State):
         "Next": "End"
     }
 
-    def __init__(self, input=None,
-                 result=None, name="",
-                 next=None, end=False):
-        State.__init__(self, next, result, end)
+    def __init__(self, result=None, name="",
+                 next=None, end=False, **input):
 
-        if not name:
-            self.name = slug_hash()
+        state_config = {
+            "name": name,
+            "type": "Pass",
+            "next": next,
+            "input": input,
+            "result": result,
+            "end": end
+        }
+            
+        State.__init__(self, state_config)
 
-        self.input = input
-        self.result = result
 
     def run(self):
 
