@@ -39,7 +39,7 @@ def test_pass_state_empty():
     machine = Machine()
     pass_ = Pass()
     machine.register(pass_)
-    pass_run_result = machine.run()
+    pass_run_result = machine.interpret()
 
     assert pass_run_result == None
 
@@ -49,14 +49,14 @@ def test_pass_state_nonempty():
     machine = Machine()
     pass_ = Pass(2)
     machine.register(pass_)
-    pass_run_result = machine.run()
+    pass_run_result = machine.interpret()
 
     assert pass_run_result == 2
 
     pass_ = Pass(result=5)
     machine_2 = Machine()
     machine_2.register(pass_)
-    pass_2_run_result = machine_2.run()
+    pass_2_run_result = machine_2.interpret()
 
     assert pass_2_run_result == 5
 
@@ -100,3 +100,34 @@ def test_conflicting_terminal_state_raises_exception():
     with pytest.raises(TerminalStateConflictException):
         state.compile()
     
+
+def test_compile_pass_state():
+
+    pass_expected = {
+        "No-op": {
+            "Type": "Pass",
+            "Result": {
+                "x": 0.381018,
+                "y": 622.2269926397355
+            },
+            "Next": "End",
+            "End": True,
+            "ResultPath": "$.result"
+        }
+    }
+
+    result = Result(
+        x=0.381018,
+        y=622.2269926397355
+    )
+
+    pass_ = Pass(
+        result=result,
+        name="No-op",
+        end=True
+    )
+
+    assert pass_.compile() == pass_expected    
+
+    
+

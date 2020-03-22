@@ -25,9 +25,9 @@ class Machine:
         self.states[state.name] = state
         
 
-    def run(self):
+    def interpret(self):
         for state in self.states:
-            self.result = self.states[state].run()
+            self.result = self.states[state].interpret()
         return self.result
 
         

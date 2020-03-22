@@ -48,16 +48,18 @@ class State:
 
     def compile(self):
 
+        # TODO: This will blow up on the first error.
+        # A more useful compiler would try to keep going and
+        # let us know about all failed validations. 
+
         if self.terminal() and self.next:
             raise TerminalStateConflictException()
 
-        # TODO: Add exception if not last but no next value
-        # is present
         if not self.terminal() and not self.next:
             raise TerminalStateConflictException(
-                "State is not marked as end, but has no next value" \
-                "specified")
-        
+                "State is not marked as end, but has no " \
+                "next value specified"
+            )
 
 
     def terminal(self):
@@ -67,7 +69,7 @@ class State:
         means a state with with { "End": true }, or a state with 
         { "Type": "Succeed" }, or a state with { "Type": "Fail" }.
         """
-        return self.end or (self.type == "Succeed") or (self.type == "Fail")
+        return self.end or (self.type == "Succeed") or (self.type == "Fail") or self.next == "End"
 
 
     def __repr__(self):

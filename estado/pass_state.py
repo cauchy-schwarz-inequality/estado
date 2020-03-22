@@ -23,9 +23,27 @@ class Pass(State):
         State.__init__(self, state_config)
 
 
-    def run(self):
+    def interpret(self):
 
         if not self.result:
             return self.input
 
         return self.result
+
+
+    def compile(self):
+
+        compiled = self.JSON_
+
+        if self.terminal():
+            compiled["Next"] = "End"
+            compiled["End"] = self.end
+
+        if self.result:
+            compiled["Result"] = self.result.results
+            compiled["ResultPath"] = self.result.path
+
+        return {
+            self.name: compiled
+        }
+        

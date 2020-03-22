@@ -10,11 +10,7 @@ class Result:
 
     def compile(self):
 
-        sugared_path = self.path.replace("$.", "")
-
-        return {
-            sugared_path: self.results
-        }
+        return self.results
 
     def __eq__(self, other):
         
@@ -30,9 +26,10 @@ class Result:
                     other)
         else:
             return False
-        
 
-                    
+
+    def __bool__(self):
+        return bool(self.results)                    
             
 
     def __repr__(self):
