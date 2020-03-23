@@ -1,7 +1,9 @@
 from estado.machine import Machine, OperationalError
 from estado.pass_state import Pass
 from estado.result  import Result
+from estado.resource_registry import Registry
 from estado.state import State
+
 
 from estado.state import InvalidStateTypeException, TerminalStateConflictException
 
@@ -217,4 +219,21 @@ def test_pass_state_transition():
     }
 
     assert compiled == expected
-    
+
+
+def test_resource_registry():
+    registry = Registry()
+
+    add_two = lambda x: x + 2
+    add_two_args = lambda x, y: x + y
+
+    def add_with_defaults(x=1,y=5):
+        return x + y
+
+    registry.register_function(add_two, "add_two")
+    registry.register_function(add_two_args, "add_two_args")
+    registry.register_function(add_with_defaults, "add_with_defaults")
+
+    assert registry.invoke_function("add_two", x=1) == 3
+    assert registry.invoke_function("add_two_args", x=50, y=50) == 100
+    assert registry.invoke_function("add_with_defaults") == 6
