@@ -55,6 +55,8 @@ machine.interpret(input=x)
 ```
 which returns the Estado representation `<Input:input:5>`. 
 
+## Task states
+
 There is support for interpreting task states using the `estado.resource_registry.Registry` class.
 
 Given a registry initialized with a simple function:
@@ -67,7 +69,7 @@ add_two = lambda x: x + 2
 registry.register_function(add_two, "add_two")
 ```
 
-We can 
+Given that registry, we can interpret a simple machine as follows:
 
 ``` python
 from estado.input import Input
@@ -86,7 +88,7 @@ machine = first_state + second_state
 machine.interpret(input=Input(x=5))
 ```
 
-which returns `<Result:result:7>`, with compilation via outputting
+which returns `<Result:result:7>`, with compilation via the `compile` method outputting
 
 ``` json
 {
