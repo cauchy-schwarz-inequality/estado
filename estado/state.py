@@ -97,7 +97,7 @@ class State:
             means a state with with { "End": true }, or a state with 
             { "Type": "Succeed" }, or a state with { "Type": "Fail" }.
         """
-        return self.end or (self.type == "Succeed") or (self.type == "Fail") or self.next == "End"
+        return self.end or (self.type == "Succeed") or (self.type == "Fail")
 
 
     def __repr__(self):
