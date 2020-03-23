@@ -57,9 +57,9 @@ which returns the Estado representation `<Input:input:5>`.
 
 ## Task states
 
-There is support for interpreting task states using the `estado.resource_registry.Registry` class.
+There is support for interpreting task states. We can use the `estado.resource_registry.Registry` class to register function resources.
 
-Given a registry initialized with a simple function:
+Given a registry initialized with a function:
 
 ``` python
 from estado.resource_registry import Registry
@@ -69,7 +69,7 @@ add_two = lambda x: x + 2
 registry.register_function(add_two, "add_two")
 ```
 
-Given that registry, we can interpret a simple machine as follows:
+We can interpret a simple machine as follows:
 
 ``` python
 from estado.input import Input
