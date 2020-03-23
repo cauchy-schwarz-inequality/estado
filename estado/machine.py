@@ -32,7 +32,13 @@ class Machine:
     def validate(self):
         pass
 
-    def register(self, state):
+    def register(self, state, force=False):
+        
+        if state.name in self.states and not force:
+            raise OperationalError(
+                f"There is already a state named {state.name}" \
+            )
+        
         self.states[state.name] = state
         
 
@@ -40,5 +46,10 @@ class Machine:
         for state in self.states:
             self.result = self.states[state].interpret()
         return self.result
+
+class OperationalError(Exception):
+
+    def __init__(self, message):
+        Exception.__init__(self, message)
 
         

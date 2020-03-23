@@ -1,4 +1,4 @@
-from estado.machine import Machine
+from estado.machine import Machine, OperationalError
 from estado.pass_state import Pass
 from estado.result  import Result
 from estado.state import State
@@ -152,5 +152,15 @@ def test_compile_pass_state():
     }
 
     assert machine.compile() == compiled_machine_expected
-    
 
+    
+def test_duplicate_statename_triggers_operationalerror():
+
+    first_state = Pass(name="test_state")
+    second_state = Pass(name="test_state")
+
+    machine = Machine()
+    machine.register(first_state)
+
+    with pytest.raises(OperationalError):
+        machine.register(second_state)
