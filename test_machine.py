@@ -197,18 +197,24 @@ def test_pass_state_transition():
 
     assert machine.interpret(52) == 52
 
-    # compiled = machine.compile()
+    compiled = machine.compile()
 
-    # expected = {
-    #     "StartAt": "test_state",
-    #     "States": {
-    #         "test_state": {
-    #             "Type": "Pass",
-    #             "Next": "End",
-    #             "End": True
-    #         }
-    #     }
-    # }
+    expected = {
+        "StartAt": "state_one",
+        "States": {
+            "state_one": {
+                "Type": "Pass",
+                "Next": "state_two",
+                "End": False
+            },
+            "state_two": {
+                "Type": "Pass",
+                "Next": "End",
+                "End": True
+            }
+            
+        }
+    }
 
-    # assert compiled == expected
+    assert compiled == expected
     

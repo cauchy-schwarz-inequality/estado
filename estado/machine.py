@@ -10,10 +10,8 @@ class Machine:
 
         compiled = {
             "StartAt": self.start_at(),
-            "States": {
-            }
+            "States": {}
         }
-
 
         for state in self.states:
 
@@ -34,6 +32,7 @@ class Machine:
             reversed(self.states.keys())
         )
 
+
     def last(self):
         """ Obtain the last state
         """
@@ -52,9 +51,8 @@ class Machine:
             )
 
         if self.states:
-            last_state = self.last()
-            last_state.next = state.name
-            last_state.end = False
+            self.states[self.end_at()].next = state.name
+            self.states[self.end_at()].end = False
 
         state.end = True
         state.next = "End"

@@ -37,6 +37,9 @@ class Pass(State):
         if self.terminal():
             compiled["Next"] = "End"
             compiled["End"] = self.end
+        else:
+            compiled["Next"] = self.next
+            compiled["End"] = False
 
 
         if self.result:
