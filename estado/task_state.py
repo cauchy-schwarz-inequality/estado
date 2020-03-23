@@ -1,36 +1,44 @@
+from estado.input import Input
+from estado.result import Result
 from estado.state import State
 
 
-class Pass(State):
+class Task(State):
 
-    def __init__(self, result=None, name="",
-                 next=None, end=False, **input):
+    def __init__(self, name="", resource="",
+                 registry=None, next=None,
+                 end=False):
 
         state_config = {
             "name": name,
-            "type": "Pass",
+            "type": "Task",
             "next": next,
-            "input": input,
-            "result": result,
             "end": end
         }
             
         State.__init__(self, state_config)
 
-        if not self.result:
-            self.result.results = self.input.inputs
+        self.resource = resource
+        self.registry = registry
 
 
     def interpret(self, input=None):
-        if input:
-            return input
-        else:
-            return self.result
+
+        if not input:
+            input = Input()
+
+        return Result(
+            self.registry.invoke_function(
+                self.resource,
+                **input.inputs
+            )
+        )
 
 
     def compile(self):
         compiled = {
-            "Type": "Pass"
+            "Type": "Task",
+            "Resource": self.resource
         }
 
         if self.terminal():

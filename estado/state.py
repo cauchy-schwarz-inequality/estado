@@ -3,7 +3,8 @@ from estado.result import Result
 from estado.input import Input
 
 SUPPORTED_STATE_TYPES = [
-    "Pass"
+    "Pass",
+    "Task"
 ]
 
 class State:

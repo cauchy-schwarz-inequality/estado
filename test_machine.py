@@ -1,11 +1,11 @@
 from estado.machine import Machine, OperationalError
+from estado.input import Input
 from estado.pass_state import Pass
 from estado.result  import Result
 from estado.resource_registry import Registry
-from estado.state import State
-
-
 from estado.state import InvalidStateTypeException, TerminalStateConflictException
+from estado.state import State
+from estado.task_state import Task
 
 import pytest
 
@@ -24,7 +24,7 @@ def test_toplevel():
     
     assert "States" in compiled
     assert "StartAt" in compiled
-    
+
 
 def test_pass_state():
     """
@@ -221,8 +221,9 @@ def test_pass_state_transition():
     assert compiled == expected
 
 
-def test_resource_registry():
-    registry = Registry()
+@pytest.fixture
+def registry():
+    fn_registry = Registry()
 
     add_two = lambda x: x + 2
     add_two_args = lambda x, y: x + y
@@ -230,10 +231,113 @@ def test_resource_registry():
     def add_with_defaults(x=1,y=5):
         return x + y
 
-    registry.register_function(add_two, "add_two")
-    registry.register_function(add_two_args, "add_two_args")
-    registry.register_function(add_with_defaults, "add_with_defaults")
+    fn_registry.register_function(add_two, "add_two")
+    fn_registry.register_function(add_two_args, "add_two_args")
+    fn_registry.register_function(add_with_defaults, "add_with_defaults")
+
+    return fn_registry
+
+
+def test_resource_registry(registry):
 
     assert registry.invoke_function("add_two", x=1) == 3
     assert registry.invoke_function("add_two_args", x=50, y=50) == 100
     assert registry.invoke_function("add_with_defaults") == 6
+    assert registry.invoke_function("add_two", **{"x": 1}) == 3
+
+
+def test_interpret_single_task(registry):
+
+    task = Task(
+        name="test_task",
+        resource="add_with_defaults",
+        registry=registry
+    )
+
+    assert task.interpret() == 6
+
+    machine = Machine()
+    machine.register(task)
+
+    assert machine.interpret() == 6
+
+    new_machine = Machine()
+    pass_ = Pass(name="a_pass")
+    new_machine.register(pass_)
+    new_machine.register(task)
+
+    input_ = Input(x=3)
+    assert new_machine.interpret(input=input_) == 8
+
+
+def test_compile_machine_with_single_task(registry):
+
+    task = Task(
+        name="add_with_defaults",
+        resource="add_with_defaults",
+        registry=registry
+    )
+
+    assert task.interpret() == 6
+
+    machine = Machine()
+    machine.register(task)
+    
+    compiled_expected = {
+        "StartAt": "add_with_defaults",
+        "States": {
+            "add_with_defaults": {
+                "Type": "Task",
+                "Next": "End",
+                "Resource": "add_with_defaults",
+                "End": True
+            }
+        }
+    }
+
+    assert machine.compile() == compiled_expected
+
+
+def test_compile_machine_with_task_and_transitions(registry):
+
+    first_task = Task(
+        name="add_two",
+        resource="add_two",
+        registry=registry
+    )
+
+    second_task = Task(
+        name="add_with_defaults",
+        resource="add_with_defaults",
+        registry=registry
+    )    
+
+    machine = Machine()
+    machine.register(first_task)
+    machine.register(second_task)
+
+    compiled_expected = {
+        "StartAt": "add_two",
+        "States": {
+            "add_two": {
+                "Type": "Task",
+                "Next": "add_with_defaults",
+                "Resource": "add_two",
+                "End": False
+            },
+            "add_with_defaults": {
+                "Type": "Task",
+                "Next": "End",
+                "Resource": "add_with_defaults",
+                "End": True
+            }
+        }
+    }
+
+    assert machine.compile() == compiled_expected
+    
+    
+
+    
+
+    
