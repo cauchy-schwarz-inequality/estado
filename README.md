@@ -1,8 +1,6 @@
 # Estado 
 
-Estado is a language for describing state machines. It is implemented as an object-oriented interface 
-
-This repository contains a compiler which compiles Estado code to valid Amazon States Language, as well as an interpreter.
+Estado is a language for describing state machines. 
 
 ## Example interaction
 
