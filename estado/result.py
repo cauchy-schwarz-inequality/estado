@@ -8,8 +8,8 @@ class Result:
         if result or not results:
             self.results["result"] = result
 
+            
     def compile(self):
-
         return self.results
 
     def __eq__(self, other):
@@ -29,7 +29,7 @@ class Result:
 
 
     def __bool__(self):
-        return bool(self.results)                    
+        return any(self.results[result] for result in self.results)
             
 
     def __repr__(self):

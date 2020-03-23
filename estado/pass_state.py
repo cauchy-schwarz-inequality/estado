@@ -3,11 +3,6 @@ from estado.state import State
 
 class Pass(State):
 
-    JSON_ = {
-        "Type": "Pass",
-        "Next": "End"
-    }
-
     def __init__(self, result=None, name="",
                  next=None, end=False, **input):
 
@@ -22,22 +17,27 @@ class Pass(State):
             
         State.__init__(self, state_config)
 
-
-    def interpret(self):
-
         if not self.result:
-            return self.input
+            self.result.results = self.input.inputs
 
-        return self.result
+
+    def interpret(self, input=None):
+        if input:
+            return input
+        else:
+            return self.result
 
 
     def compile(self):
-
-        compiled = self.JSON_
+        compiled = {
+            "Type": "Pass",
+            "Next": "End"
+        }
 
         if self.terminal():
             compiled["Next"] = "End"
             compiled["End"] = self.end
+
 
         if self.result:
             compiled["Result"] = self.result.results

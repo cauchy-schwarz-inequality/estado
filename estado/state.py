@@ -1,5 +1,6 @@
 from estado.hash_utils import slug_hash
 from estado.result import Result
+from estado.input import Input
 
 SUPPORTED_STATE_TYPES = [
     "Pass"
@@ -16,7 +17,6 @@ class State:
 
         self.type = type_
 
-
         name = state_config.get("name")
 
         if not name:
@@ -24,34 +24,41 @@ class State:
         else:
             self.name = name
         
-        self.input = state_config.get("input")
-
-        self.result = self.normalize_result(
-            state_config.get("result")
+        self.input = self.normalize_result_or_input(
+            state_config.get("input"),
+            Input
         )
 
+        self.result = self.normalize_result_or_input(
+            state_config.get("result"),
+            Result
+        )
 
         self.next = state_config.get("next")
         self.end = state_config.get("end", None)
 
 
-    def normalize_result(self, result):
-        if isinstance(result, dict):
-            return Result(
-                **result
+    def normalize_result_or_input(self, result_or_input, Kind):
+        """ In Estado, an input or result may be passed as a dictionary,
+            an atomic type, or directly as an Input or Result object
+        """
+        if isinstance(result_or_input, dict):
+            return Kind(
+                **result_or_input
             )
-        elif isinstance(result, Result):
-            return result
+        elif isinstance(result_or_input, Kind):
+            return result_or_input
         else:
-            return Result(result=result)
+            return {
+                Result: Result(result=result_or_input),
+                Input: Input(input=result_or_input)
+            }[Kind]
 
 
     def compile(self):
-
         # TODO: This will blow up on the first error.
         # A more useful compiler would try to keep going and
         # let us know about all failed validations. 
-
         if self.terminal() and self.next:
             raise TerminalStateConflictException()
 

@@ -22,8 +22,9 @@ def test_toplevel():
     
     assert "States" in compiled
     assert "StartAt" in compiled
+    
 
-def test_pass_state_empty():
+def test_pass_state():
     """
     The Pass State (identified by "Type":"Pass") simply passes its input to its output, performing no work. 
 
@@ -37,16 +38,6 @@ def test_pass_state_empty():
     Thus if neither “Result” nor “ResultPath” are provided, the Pass state copies its input through to its output.
     """
     
-    machine = Machine()
-    pass_ = Pass()
-    machine.register(pass_)
-    pass_run_result = machine.interpret()
-
-    assert pass_run_result == None
-
-    
-
-def test_pass_state_nonempty():
     machine = Machine()
     pass_ = Pass(2)
     machine.register(pass_)
@@ -164,3 +155,60 @@ def test_duplicate_statename_triggers_operationalerror():
 
     with pytest.raises(OperationalError):
         machine.register(second_state)
+
+
+def test_register_duplicate_statename_with_force():
+
+    first_state = Pass(name="test_state")
+    second_state = Pass(name="test_state")
+
+    machine = Machine()
+    machine.register(first_state)
+    machine.register(second_state, force=True)
+
+    compiled = machine.compile()
+
+    expected = {
+        "StartAt": "test_state",
+        "States": {
+            "test_state": {
+                "Type": "Pass",
+                "Next": "End",
+                "End": True
+            }
+        }
+    }
+
+    assert compiled == expected
+    
+
+def test_pass_state_transition():
+
+    first_state = Pass(name="state_one")
+    second_state = Pass(name="state_two")
+
+    machine = Machine()
+    machine.register(first_state)
+    machine.register(second_state)
+
+    assert machine.start_at() == "state_one"
+    assert machine.end_at() == "state_two"
+    assert machine.last().terminal()
+
+    assert machine.interpret(52) == 52
+
+    # compiled = machine.compile()
+
+    # expected = {
+    #     "StartAt": "test_state",
+    #     "States": {
+    #         "test_state": {
+    #             "Type": "Pass",
+    #             "Next": "End",
+    #             "End": True
+    #         }
+    #     }
+    # }
+
+    # assert compiled == expected
+    

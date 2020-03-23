@@ -14,8 +14,6 @@ class Machine:
             }
         }
 
-        if not force:
-            self.validate()
 
         for state in self.states:
 
@@ -27,25 +25,49 @@ class Machine:
         return compiled
 
     def start_at(self):
+        """ Obtain the name of the first state
+        """ 
         return next(iter(self.states))
 
-    def validate(self):
-        pass
+    def end_at(self):
+        return next(
+            reversed(self.states.keys())
+        )
+
+    def last(self):
+        """ Obtain the last state
+        """
+        return self.states[
+            next(reversed(
+                self.states.keys()
+            ))
+        ]
+
 
     def register(self, state, force=False):
-        
+
         if state.name in self.states and not force:
             raise OperationalError(
                 f"There is already a state named {state.name}" \
             )
-        
-        self.states[state.name] = state
-        
 
-    def interpret(self):
+        if self.states:
+            last_state = self.last()
+            last_state.next = state.name
+            last_state.end = False
+
+        state.end = True
+        state.next = "End"
+
+        self.states[state.name] = state
+
+
+    def interpret(self, input=None):
         for state in self.states:
-            self.result = self.states[state].interpret()
+            self.result = self.states[state].interpret(input=input)
+            input = self.result
         return self.result
+
 
 class OperationalError(Exception):
 
