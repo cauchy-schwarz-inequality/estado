@@ -1,6 +1,6 @@
 from estado.hash_utils import slug_hash
-from estado.result import Result
 from estado.input import Input
+from estado.result import Result
 
 SUPPORTED_STATE_TYPES = [
     "Pass",
@@ -40,7 +40,7 @@ class State:
 
 
     def normalize_result_or_input(self, result_or_input, Kind):
-        """ In Estado, an input or result may be passed as a dictionary,
+        """ In Estado, an input or result may be passed as a Python dictionary,
             an atomic type, or directly as an Input or Result object
         """
         if isinstance(result_or_input, dict):
@@ -57,6 +57,10 @@ class State:
 
 
     def validate(self):
+        """ Sanity checks validating that there isn't a conflict between 
+            properties determining a state's terminal status and the 'next'
+            property.
+        """ 
         if self.terminal() and self.next:
             raise TerminalStateConflictException()
 
@@ -68,13 +72,14 @@ class State:
 
 
     def compile_(self):
+        """ Compilation logic common to each state type
+        """
         compiled = {
             "Type": self.type,
         }
 
         if self.terminal():
-            compiled["Next"] = "End"
-            compiled["End"] = self.end
+            compiled["End"] = True
         else:
             compiled["Next"] = self.next
             compiled["End"] = False
@@ -84,21 +89,47 @@ class State:
             compiled["Result"] = self.result.results
             compiled["ResultPath"] = self.result.path
         return compiled
-        
 
 
     def terminal(self):
-        """
-        Any state except for Choice, Succeed, and Fail MAY have a field 
-        named "End" whose value MUST be a boolean. The term “Terminal State” 
-        means a state with with { "End": true }, or a state with 
-        { "Type": "Succeed" }, or a state with { "Type": "Fail" }.
+        """ Any state except for Choice, Succeed, and Fail MAY have a field 
+            named "End" whose value MUST be a boolean. The term “Terminal State” 
+            means a state with with { "End": true }, or a state with 
+            { "Type": "Succeed" }, or a state with { "Type": "Fail" }.
         """
         return self.end or (self.type == "Succeed") or (self.type == "Fail") or self.next == "End"
 
 
     def __repr__(self):
         return f"<{self.type}:{self.name}>"
+
+
+    def __add__(self, other):
+        """ Syntactic sugar allowing states and machines to be combined
+            using the + operator. 
+
+            Let a_1 and b_1 be states. Then we can create a new state machine,
+            a_1 + b_1, where a_1 is the initial state, and b_2 is the terminal state. 
+
+            Now let M = m_1, m_2, ..., m_n be a machine. Then a_1 + M is a new state 
+            machine with a_1 the initial state, m_1 the next state after a_1, 
+            and m_n the terminal state. 
+           
+            Note that this operation is associative but not commutative
+        """
+        from estado.machine import Machine
+        
+        machine_ = Machine()
+        machine_.register(self)
+
+        if isinstance(other, State):
+            machine_.register(other)
+            
+        elif isinstance(other, Machine):
+            for state in other.states:
+                machine_ += other.states[state]
+                
+        return machine_
 
 
 class InvalidStateTypeException(Exception):

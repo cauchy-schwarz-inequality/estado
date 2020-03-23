@@ -2,7 +2,9 @@ from estado.hash_utils import slug_hash
 
 class Registry:
 
-    def __init__(self):
+    def __init__(self, name="registry"):
+
+        self.name = name
         self.functions = {}
 
     def register_function(self, fn, name=""):

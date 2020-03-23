@@ -39,10 +39,9 @@ class Task(State):
 
         compiled = {
             **self.compile_(),
-            "Resource": self.resource
+            "Resource": f"{self.registry.name}:{self.resource}"
         }
-        
+
         return {
             self.name: compiled
         }
-        

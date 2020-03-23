@@ -104,7 +104,6 @@ def test_compile_pass_state():
                 "x": 0.381018,
                 "y": 622.2269926397355
             },
-            "Next": "End",
             "End": True,
             "ResultPath": "$.result"
         }
@@ -137,7 +136,6 @@ def test_compile_pass_state():
                     "x": 0.381018,
                     "y": 622.2269926397355
                 },
-                "Next": "End",
                 "End": True,
                 "ResultPath": "$.result"
             }
@@ -175,7 +173,6 @@ def test_register_duplicate_statename_with_force():
         "States": {
             "test_state": {
                 "Type": "Pass",
-                "Next": "End",
                 "End": True
             }
         }
@@ -211,7 +208,6 @@ def test_pass_state_transition():
             },
             "state_two": {
                 "Type": "Pass",
-                "Next": "End",
                 "End": True
             }
             
@@ -288,8 +284,7 @@ def test_compile_machine_with_single_task(registry):
         "States": {
             "add_with_defaults": {
                 "Type": "Task",
-                "Next": "End",
-                "Resource": "add_with_defaults",
+                "Resource": "registry:add_with_defaults",
                 "End": True
             }
         }
@@ -322,22 +317,50 @@ def test_compile_machine_with_task_and_transitions(registry):
             "add_two": {
                 "Type": "Task",
                 "Next": "add_with_defaults",
-                "Resource": "add_two",
+                "Resource": "registry:add_two",
                 "End": False
             },
             "add_with_defaults": {
                 "Type": "Task",
-                "Next": "End",
-                "Resource": "add_with_defaults",
+                "Resource": "registry:add_with_defaults",
                 "End": True
             }
         }
     }
 
     assert machine.compile() == compiled_expected
-    
-    
 
-    
 
-    
+def test_sugared_state_transition():
+
+    first_state = Pass(name="state_one")
+    second_state = Pass(name="state_two")
+
+    machine = Machine()
+    machine.register(first_state)
+    machine.register(second_state)
+
+    compiled = machine.compile()
+
+    second_machine = first_state + second_state
+    second_compiled = second_machine.compile()
+
+    # This assert shows that a machine can be created by adding states
+    # and that machine is equivalent to adding states with the OO interface
+    assert compiled == second_compiled
+
+    fourth_state = Pass(name="state_three")
+    fifth_state = Pass(name="state_four")
+
+    machine.register(fourth_state)
+    machine.register(fifth_state)
+
+    third_machine = Machine()
+    third_machine.register(fourth_state)
+    third_machine.register(fifth_state)
+
+    fourth_machine = second_machine + third_machine
+
+    # This assert shows that a machine can be created by adding two machines
+    # and that machine is equivalent to one created with the OO interface
+    assert machine.compile() == fourth_machine.compile()
