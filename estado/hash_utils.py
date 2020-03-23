@@ -14,10 +14,7 @@ def slug_hash():
 
     digest = m.hexdigest()[:7]
 
-    random_first = randint(0,100)
-    random_second = randint(0,100)
+    random_first = randint(0, 100)
+    random_second = randint(0, 100)
     
     return f"{digest}-{random_first}-{random_second}"
-
-
-    
