@@ -36,23 +36,12 @@ class Task(State):
 
 
     def compile(self):
+
         compiled = {
-            "Type": "Task",
+            **self.compile_(),
             "Resource": self.resource
         }
-
-        if self.terminal():
-            compiled["Next"] = "End"
-            compiled["End"] = self.end
-        else:
-            compiled["Next"] = self.next
-            compiled["End"] = False
-
-
-        if self.result:
-            compiled["Result"] = self.result.results
-            compiled["ResultPath"] = self.result.path
-
+        
         return {
             self.name: compiled
         }

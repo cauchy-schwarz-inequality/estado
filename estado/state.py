@@ -56,10 +56,7 @@ class State:
             }[Kind]
 
 
-    def compile(self):
-        # TODO: This will blow up on the first error.
-        # A more useful compiler would try to keep going and
-        # let us know about all failed validations. 
+    def validate(self):
         if self.terminal() and self.next:
             raise TerminalStateConflictException()
 
@@ -67,7 +64,27 @@ class State:
             raise TerminalStateConflictException(
                 "State is not marked as end, but has no " \
                 "next value specified"
-            )
+            )                
+
+
+    def compile_(self):
+        compiled = {
+            "Type": self.type,
+        }
+
+        if self.terminal():
+            compiled["Next"] = "End"
+            compiled["End"] = self.end
+        else:
+            compiled["Next"] = self.next
+            compiled["End"] = False
+
+
+        if self.result:
+            compiled["Result"] = self.result.results
+            compiled["ResultPath"] = self.result.path
+        return compiled
+        
 
 
     def terminal(self):

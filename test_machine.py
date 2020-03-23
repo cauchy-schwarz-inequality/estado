@@ -92,7 +92,7 @@ def test_conflicting_terminal_state_raises_exception():
     state = State(state_config)
 
     with pytest.raises(TerminalStateConflictException):
-        state.compile()
+        state.validate()
     
 
 def test_compile_pass_state():
@@ -310,7 +310,7 @@ def test_compile_machine_with_task_and_transitions(registry):
         name="add_with_defaults",
         resource="add_with_defaults",
         registry=registry
-    )    
+    )
 
     machine = Machine()
     machine.register(first_task)
